@@ -40,7 +40,7 @@ public class ClienteTCP extends JFrame {
     ArrayList<JButton> btnsPecasMesa, btnsPecas;
     ArrayList<String> pecasDisponiveisParaCompra, pecasCompradasNaJogada;
     JButton btnPassarVez, btnComprar;
-    Container painelJogador, painelMesa, painelInformacoes, painelBase, painelTopo;
+    Container painelJogador, painelMesa, painelAcoes, painelBase, painelTopo;
     JRadioButton rbInserirNaEsquerda, rbInserirNaDireita;
     ButtonGroup grupoBotoes;
     JFrame frame;
@@ -138,12 +138,12 @@ public class ClienteTCP extends JFrame {
         painelBase = new JPanel();
         painelTopo = new JPanel();
         painelTopo.setLayout(new BoxLayout(painelTopo, BoxLayout.PAGE_AXIS));
-        painelInformacoes = new JPanel();
+        painelAcoes = new JPanel();
         rbInserirNaEsquerda.setSelected(true);
         grupoBotoes.add(rbInserirNaEsquerda);
         grupoBotoes.add(rbInserirNaDireita);
-        painelInformacoes.add(BorderLayout.SOUTH, btnPassarVez);
-        painelInformacoes.add(BorderLayout.SOUTH, btnComprar);
+        painelAcoes.add(BorderLayout.SOUTH, btnPassarVez);
+        painelAcoes.add(BorderLayout.SOUTH, btnComprar);
         painelJogador.add(rbInserirNaEsquerda);
         painelJogador.add(rbInserirNaDireita);
         for (int i = 0; i < 6; i++) {
@@ -155,7 +155,7 @@ public class ClienteTCP extends JFrame {
             btnsPecas.add(peca);
             painelJogador.add(peca);
         }
-        painelBase.add(painelInformacoes);
+        painelBase.add(painelAcoes);
         painelBase.add(painelJogador);
         painelTopo.add(txtStatus);
         painelTopo.add(txtQuantidadePecas);
@@ -270,6 +270,15 @@ public class ClienteTCP extends JFrame {
                            pecasDisponiveisParaCompra.remove(0);                        
                     }
                 }
+            else if(mensagens[0].equals("4")){
+                JOptionPane.showMessageDialog(null, "O Jogador "+mensagens[1]+" venceu esta partida. Pontuaç�o: "+mensagens[2]);
+                desabilitarBotoes();
+                JButton btnNovaPartida = new JButton("Iniciar Nova Partida");
+                txtStatus.setVisible(false);
+                painelTopo.add(btnNovaPartida);
+                alterarDesignBotao(btnNovaPartida);
+                painelTopo.revalidate();
+            }
         }
     }
 
