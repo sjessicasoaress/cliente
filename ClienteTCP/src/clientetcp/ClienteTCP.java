@@ -35,11 +35,9 @@ public class ClienteTCP extends JFrame {
 
     PrintWriter saida;
     Socket conexao;
-    BufferedReader teclado;
-    JTextField status, quantidadePecas;
+    JTextField txtStatus, txtQuantidadePecas;
     Scanner entrada;
-    static ArrayList<JButton> btnsPecasMesa;
-    ArrayList<JButton> btnsPecas;
+    ArrayList<JButton> btnsPecasMesa, btnsPecas;
     ArrayList<String> pecasDisponiveisParaCompra, pecasCompradasNaJogada;
     JButton btnPassarVez, btnComprar;
     Container painelJogador, painelMesa, painelInformacoes, painelBase, painelTopo;
@@ -62,7 +60,7 @@ public class ClienteTCP extends JFrame {
             entrada = new Scanner(conexao.getInputStream());
             aguardarMensagemDoServidor();
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, "Erro ao tentar estabelecer conexao com o servidor.\n" + "Erro: " + ex.getMessage());
+            JOptionPane.showMessageDialog(null, "Erro: " + ex.getMessage());
         }
     }
 
@@ -71,7 +69,6 @@ public class ClienteTCP extends JFrame {
         for (JButton btn : btnsPecasMesa) {
             painelMesa.add(BorderLayout.CENTER, btn);
         }
-        //força a atualizaçao
         painelMesa.revalidate();
     }
 
@@ -88,12 +85,11 @@ public class ClienteTCP extends JFrame {
             b.setEnabled(false);
         }
         btnPassarVez.setEnabled(false);
-        btnComprar.setEnabled(false);
+        btnComprar.setEnabled(false); 
     }
 
     void alterarDesignBotao(final JButton b) {
-        b.setSize(200, 500);
-
+        b.setPreferredSize(new Dimension(115, 35));
         b.addMouseListener(new java.awt.event.MouseAdapter() {
 
             public void mouseEntered(java.awt.event.MouseEvent evt) {
@@ -116,14 +112,14 @@ public class ClienteTCP extends JFrame {
     }
 
     private void configurarLayoutTela() {
-        Font fonte = new Font("Calibri", Font.BOLD, 18);
+        Font fonte = new Font("Comic Sans", Font.PLAIN, 18);
         this.setForeground(Color.WHITE);
-        status = new JTextField("Aguardando todos os participantes se conectarem..");
-        status.setFont(fonte);
-        quantidadePecas = new JTextField();
-        quantidadePecas.setFont(fonte);
-        status.setBackground(this.getBackground());
-        quantidadePecas.setBackground(this.getBackground());
+        txtStatus = new JTextField("Aguardando todos os participantes se conectarem..");
+        txtStatus.setFont(fonte);
+        txtQuantidadePecas = new JTextField();
+        txtQuantidadePecas.setFont(fonte);
+        txtStatus.setBackground(this.getBackground());
+        txtQuantidadePecas.setBackground(this.getBackground());
         btnsPecas = new ArrayList();
         btnsPecasMesa = new ArrayList();
         pecasDisponiveisParaCompra = new ArrayList();
@@ -153,16 +149,16 @@ public class ClienteTCP extends JFrame {
         for (int i = 0; i < 6; i++) {
             JButton peca = new JButton("");
             peca.setEnabled(false);
-            peca.setPreferredSize(new Dimension(55, 40));
             peca.addActionListener(new EnviarMensagemAoServidor());
             alterarDesignBotao(peca);
+            peca.setPreferredSize(new Dimension(55, 40));
             btnsPecas.add(peca);
             painelJogador.add(peca);
         }
         painelBase.add(painelInformacoes);
         painelBase.add(painelJogador);
-        painelTopo.add(status);
-        painelTopo.add(quantidadePecas);
+        painelTopo.add(txtStatus);
+        painelTopo.add(txtQuantidadePecas);
         this.add(BorderLayout.NORTH, painelTopo);
         this.add(BorderLayout.SOUTH, painelBase);
         this.add(BorderLayout.CENTER, painelMesa);
@@ -175,15 +171,26 @@ public class ClienteTCP extends JFrame {
     }
 
     private void exibirQuantidadePecasDosJogadores(String quantidadePecasJogadores) {
-        quantidadePecas.setText("Qtd de peças: " + quantidadePecasJogadores);
+        txtQuantidadePecas.setText("Qtd de peças: " + quantidadePecasJogadores);
         painelTopo.revalidate();
+    }
+
+    public String pecasCompradasNaJogada() {
+        String pecasCompradas = "";
+        for (int i = 0; i < pecasCompradasNaJogada.size(); i++) {
+            pecasCompradas += pecasCompradasNaJogada.get(i) + ",";
+        }
+        if (!pecasCompradas.equals("")) {
+            pecasCompradasNaJogada.clear();
+        }
+        return pecasCompradas;
     }
 
     private void definirAcoesBotoes() {
 
         btnPassarVez.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                saida.println("#");
+                saida.println("#" + pecasCompradasNaJogada());
                 saida.flush();
                 desabilitarBotoes();
             }
@@ -195,15 +202,14 @@ public class ClienteTCP extends JFrame {
                     JOptionPane.showMessageDialog(null, "N�o existem mais peças dispon�veis para compra.");
                 } else {
                     JButton btnPecaComprada = new JButton(pecasDisponiveisParaCompra.get(0));
-                    btnPecaComprada.setPreferredSize(new Dimension(55, 40));
                     alterarDesignBotao(btnPecaComprada);
+                    btnPecaComprada.setPreferredSize(new Dimension(55, 40));
                     btnPecaComprada.addActionListener(new EnviarMensagemAoServidor());
                     btnsPecas.add(btnPecaComprada);
                     pecasCompradasNaJogada.add(btnPecaComprada.getText());
                     painelJogador.add(btnPecaComprada);
                     painelJogador.revalidate();
                     pecasDisponiveisParaCompra.remove(0);
-
                 }
             }
         });
@@ -215,7 +221,6 @@ public class ClienteTCP extends JFrame {
         String texto;
         while ((texto = entrada.nextLine()) != null) {
             String[] mensagens = texto.split("#");
-
             if (mensagens[0].equals("0")) {
                 this.id = Integer.parseInt(mensagens[1]);
                 char equipe = (this.id % 2 == 0) ? 'A' : 'B';
@@ -228,18 +233,22 @@ public class ClienteTCP extends JFrame {
                 for (int i = 0; i < pecasCompra.length; i++) {
                     pecasDisponiveisParaCompra.add(pecasCompra[i]);
                 }
-            } else if (mensagens[0].equals("1")) {
+            } 
+            //ID_MENSAGEM_INICIAL
+            else if (mensagens[0].equals("1")) {
                 int idJogadorDaVez = Integer.parseInt(mensagens[1]);
 
                 if (idJogadorDaVez == this.id) {
                     habilitarBotoes();
-                    status.setText("Sua vez!");
+                    txtStatus.setText("Sua vez!");
                 } else {
                     desabilitarBotoes();
                     char equipe = (idJogadorDaVez % 2 == 0) ? 'A' : 'B';
-                    status.setText("Aguarde o jogador " + idJogadorDaVez + " - " + " equipe " + equipe + " jogar...");
+                    txtStatus.setText("Aguarde o jogador " + idJogadorDaVez + " - " + " equipe " + equipe + " jogar...");
                 }
-            } else if (mensagens[0].equals("2")) {
+            }
+            //ID_MENSAGEM_INFORMAR_JOGADA
+            else if (mensagens[0].equals("2")) {
                 JButton botaoMesa = new JButton(mensagens[2]);
                 botaoMesa.setBackground(Color.black);
                 botaoMesa.setForeground(Color.white);
@@ -252,8 +261,15 @@ public class ClienteTCP extends JFrame {
                 }
                 redesenharPecasDaMesa();
                 exibirQuantidadePecasDosJogadores(mensagens[3]);
-            }
-
+            } 
+            //ID_MENSAGEM_QTD_PECAS_COMPRADAS
+            else if (mensagens[0].equals("3")) {
+                int numeroPecasCompradasPeloAdversario = Integer.parseInt(mensagens[1]);
+                
+                for (int i = 0; i < numeroPecasCompradasPeloAdversario; i++) {
+                           pecasDisponiveisParaCompra.remove(0);                        
+                    }
+                }
         }
     }
 
@@ -268,26 +284,20 @@ public class ClienteTCP extends JFrame {
             if (valido) {
                 //tem que girar a peça em alguns casos na hora de desenhar
                 verificarSeAPecaEstaDoLadoCorreto(pecaClicada, direita);
-                //se o jogador s� est� com uma peça, envia tbm as peças das extremidades da mesa
-                String pecasCompradas = "";
-                for (int i = 0; i < pecasCompradasNaJogada.size(); i++) {
-                    pecasCompradas = pecasCompradasNaJogada.get(i) + ",";
-                }
 
-                saida.println(direita + "#" + pecaClicada.getText() + "#" + pecasQueEstaoNasPontas() + "#" + pecasCompradas);
+                saida.println(direita + "#" + pecaClicada.getText() + "#" + pecasQueEstaoNasPontas() + "#" + pecasCompradasNaJogada());
                 saida.flush();
 
                 pecaClicada.setVisible(false);
                 btnsPecas.remove(pecaClicada);
                 desabilitarBotoes();
-                pecasCompradasNaJogada.clear();
+
             } else {
                 JOptionPane.showMessageDialog(null, "Este movimento n�o � permitido!");
             }
         }
 
         //valorpeca � algo assim: 1|3 e posicao � '0' se for pra inserir na esquerda e '1' se for pra inserir na direita
-
         private boolean verificarMovimentoValido(String valorPeca, char posicao) {
             if (btnsPecasMesa.isEmpty()) {
                 return true;
@@ -301,7 +311,6 @@ public class ClienteTCP extends JFrame {
 
         //se posicao = direita '1' senao '0'
         //Este m�todo � s� para desenhar do lado correto
-
         private void verificarSeAPecaEstaDoLadoCorreto(JButton pecaClicada, char posicao) {
             if (btnsPecasMesa.isEmpty()) {
                 return;
