@@ -178,7 +178,7 @@ public class ClienteTCP extends JFrame {
          
         scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scroll.setViewportBorder(new LineBorder(Color.PINK));
+        scroll.setViewportBorder(new LineBorder(Color.CYAN));
         scroll.getViewport().add(p, null);
         this.add(scroll);
         setVisible(true);
