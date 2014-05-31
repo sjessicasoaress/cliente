@@ -24,8 +24,10 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
+import javax.swing.border.LineBorder;
 
 /**
  *
@@ -125,15 +127,17 @@ public class ClienteTCP extends JFrame {
         pecasDisponiveisParaCompra = new ArrayList();
         pecasCompradasNaJogada = new ArrayList();
         btnPassarVez = new JButton("Passar Vez");
+        JScrollPane scroll= new JScrollPane();
         alterarDesignBotao(btnPassarVez);
         btnPassarVez.setEnabled(false);
-        btnComprar = new JButton("Comprar");
+        btnComprar = new JButton("Comprar Peça");
         alterarDesignBotao(btnComprar);
         btnComprar.setEnabled(false);
         grupoBotoes = new ButtonGroup();
-        rbInserirNaEsquerda = new JRadioButton("<-");
-        rbInserirNaDireita = new JRadioButton("->");
+        rbInserirNaEsquerda = new JRadioButton("Inserir na esquerda");
+        rbInserirNaDireita = new JRadioButton("Inserir na direita");
         painelJogador = new JPanel();
+        
         painelMesa = new JPanel();
         painelBase = new JPanel();
         painelTopo = new JPanel();
@@ -142,10 +146,17 @@ public class ClienteTCP extends JFrame {
         rbInserirNaEsquerda.setSelected(true);
         grupoBotoes.add(rbInserirNaEsquerda);
         grupoBotoes.add(rbInserirNaDireita);
-        painelAcoes.add(BorderLayout.SOUTH, btnPassarVez);
-        painelAcoes.add(BorderLayout.SOUTH, btnComprar);
-        painelJogador.add(rbInserirNaEsquerda);
-        painelJogador.add(rbInserirNaDireita);
+        painelAcoes.setLayout(new BoxLayout(painelAcoes, BoxLayout.PAGE_AXIS));
+        painelAcoes.add(btnPassarVez);
+        painelAcoes.add(btnComprar);
+        
+        painelJogador.add(painelAcoes);
+        JPanel painelInserirPeca = new JPanel();
+        painelInserirPeca.setLayout(new BoxLayout(painelInserirPeca, BoxLayout.PAGE_AXIS));
+        painelInserirPeca.add(rbInserirNaDireita);
+        painelInserirPeca.add(rbInserirNaEsquerda);
+        painelJogador.add(painelInserirPeca);
+        
         for (int i = 0; i < 6; i++) {
             JButton peca = new JButton("");
             peca.setEnabled(false);
@@ -155,14 +166,21 @@ public class ClienteTCP extends JFrame {
             btnsPecas.add(peca);
             painelJogador.add(peca);
         }
-        painelBase.add(painelAcoes);
+        painelBase.setLayout(new BoxLayout(painelBase, BoxLayout.PAGE_AXIS));
+        JPanel p=new JPanel();
+        p.setLayout(new BorderLayout());
         painelBase.add(painelJogador);
         painelTopo.add(txtStatus);
         painelTopo.add(txtQuantidadePecas);
-        this.add(BorderLayout.NORTH, painelTopo);
-        this.add(BorderLayout.SOUTH, painelBase);
-        this.add(BorderLayout.CENTER, painelMesa);
-
+        p.add(BorderLayout.NORTH, painelTopo);
+        p.add(BorderLayout.SOUTH, painelBase);
+        p.add(BorderLayout.CENTER, painelMesa);
+         
+        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scroll.setViewportBorder(new LineBorder(Color.PINK));
+        scroll.getViewport().add(p, null);
+        this.add(scroll);
         setVisible(true);
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
