@@ -245,7 +245,7 @@ public class ClienteTCP extends JFrame {
             String[] mensagens = texto.split("#");
             if (mensagens[0].equals("0")) {
                 this.id = Integer.parseInt(mensagens[1]);
-                char equipe = (this.id%2==0)? 'A' : 'B';//mensagens[4].charAt(0);
+                char equipe = (this.id%2==0)?'A':'B';//mensagens[4].charAt(0);
                 frame.setTitle("ID:" + this.id + " Equipe:" + equipe);
                 String[] pecas = mensagens[2].split(",");
                 for (int i = 0; i < btnsPecas.size(); i++) {
