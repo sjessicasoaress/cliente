@@ -11,6 +11,7 @@ import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
@@ -180,9 +181,12 @@ public class ClienteTCP extends JFrame {
         scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         scroll.setViewportBorder(new LineBorder(Color.CYAN));
         scroll.getViewport().add(p, null);
+        int maxY = scroll.getVerticalScrollBar().getMaximum();  
+        int maxX = scroll.getHorizontalScrollBar().getMaximum();
+        scroll.getViewport().setViewPosition(new Point(maxX,maxY));
         this.add(scroll);
         setVisible(true);
-        setSize(800, 600);
+        setSize(800, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         definirAcoesBotoes();
 
@@ -241,7 +245,7 @@ public class ClienteTCP extends JFrame {
             String[] mensagens = texto.split("#");
             if (mensagens[0].equals("0")) {
                 this.id = Integer.parseInt(mensagens[1]);
-                char equipe = (this.id % 2 == 0) ? 'A' : 'B';
+                char equipe = mensagens[4].charAt(0);
                 frame.setTitle("ID:" + this.id + " Equipe:" + equipe);
                 String[] pecas = mensagens[2].split(",");
                 for (int i = 0; i < btnsPecas.size(); i++) {
