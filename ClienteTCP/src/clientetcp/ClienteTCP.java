@@ -27,6 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.border.LineBorder;
 
@@ -38,11 +39,11 @@ public class ClienteTCP extends JFrame {
 
     PrintWriter saida;
     Socket conexao;
-    JTextField txtStatus, txtQuantidadePecas;
+    JTextField txtStatus, txtQuantidadePecas, txtPontuacaoEquipes;
     Scanner entrada;
     ArrayList<JButton> btnsPecasMesa, btnsPecas;
     ArrayList<String> pecasDisponiveisParaCompra, pecasCompradasNaJogada;
-    JButton btnPassarVez, btnComprar;
+    JButton btnPassarVez, btnComprar, btnNovaPartida;
     Container painelJogador, painelMesa, painelAcoes, painelBase, painelTopo;
     JRadioButton rbInserirNaEsquerda, rbInserirNaDireita;
     ButtonGroup grupoBotoes;
@@ -120,9 +121,12 @@ public class ClienteTCP extends JFrame {
         txtStatus = new JTextField("Aguardando todos os participantes se conectarem..");
         txtStatus.setFont(fonte);
         txtQuantidadePecas = new JTextField();
+        txtPontuacaoEquipes = new JTextField();
+        txtPontuacaoEquipes.setFont(fonte);
         txtQuantidadePecas.setFont(fonte);
-        txtStatus.setBackground(this.getBackground());
-        txtQuantidadePecas.setBackground(this.getBackground());
+        txtStatus.setEditable(false);
+        txtQuantidadePecas.setEditable(false);
+        txtPontuacaoEquipes.setEditable(false);
         btnsPecas = new ArrayList();
         btnsPecasMesa = new ArrayList();
         pecasDisponiveisParaCompra = new ArrayList();
@@ -138,7 +142,7 @@ public class ClienteTCP extends JFrame {
         rbInserirNaEsquerda = new JRadioButton("Inserir na esquerda");
         rbInserirNaDireita = new JRadioButton("Inserir na direita");
         painelJogador = new JPanel();
-        
+        btnNovaPartida = new JButton("Iniciar Nova Partida");
         painelMesa = new JPanel();
         painelBase = new JPanel();
         painelTopo = new JPanel();
@@ -172,6 +176,11 @@ public class ClienteTCP extends JFrame {
         p.setLayout(new BorderLayout());
         painelBase.add(painelJogador);
         painelTopo.add(txtStatus);
+        alterarDesignBotao(btnNovaPartida);
+        painelTopo.add(btnNovaPartida);
+        btnNovaPartida.setVisible(false);
+        exibirPontuacaoDasEquipes("A: 0, B: 0");
+        painelTopo.add(txtPontuacaoEquipes);
         painelTopo.add(txtQuantidadePecas);
         p.add(BorderLayout.NORTH, painelTopo);
         p.add(BorderLayout.SOUTH, painelBase);
@@ -196,6 +205,10 @@ public class ClienteTCP extends JFrame {
         txtQuantidadePecas.setText("Qtd de peças: " + quantidadePecasJogadores);
         painelTopo.revalidate();
     }
+    private void exibirPontuacaoDasEquipes(String pontuacaoEquipes) {
+        txtPontuacaoEquipes.setText("Equipes:  "+pontuacaoEquipes);
+        painelTopo.revalidate();
+    }
 
     public String pecasCompradasNaJogada() {
         String pecasCompradas = "";
@@ -212,7 +225,7 @@ public class ClienteTCP extends JFrame {
 
         btnPassarVez.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                saida.println("#" + pecasCompradasNaJogada());
+                saida.println(TipoMensagem.ID_MENSAGEM_PASSAR_VEZ+"#" + pecasCompradasNaJogada());
                 saida.flush();
                 desabilitarBotoes();
             }
@@ -235,6 +248,13 @@ public class ClienteTCP extends JFrame {
                 }
             }
         });
+        
+        btnNovaPartida.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                saida.println(TipoMensagem.ID_MENSAGEM_NOVA_PARTIDA+"#");
+                saida.flush();
+            }
+        });
 
     }
 
@@ -243,6 +263,7 @@ public class ClienteTCP extends JFrame {
         String texto;
         while ((texto = entrada.nextLine()) != null) {
             String[] mensagens = texto.split("#");
+            //ID_MENSAGEM_INICIAL
             if (mensagens[0].equals("0")) {
                 this.id = Integer.parseInt(mensagens[1]);
                 char equipe = (this.id%2==0)?'A':'B';//mensagens[4].charAt(0);
@@ -256,7 +277,7 @@ public class ClienteTCP extends JFrame {
                     pecasDisponiveisParaCompra.add(pecasCompra[i]);
                 }
             } 
-            //ID_MENSAGEM_INICIAL
+            //ID_MENSAGEM_INFORMAR_JOGADOR_DA_VEZ
             else if (mensagens[0].equals("1")) {
                 int idJogadorDaVez = Integer.parseInt(mensagens[1]);
 
@@ -292,13 +313,15 @@ public class ClienteTCP extends JFrame {
                            pecasDisponiveisParaCompra.remove(0);                        
                     }
                 }
+            //ID_MENSAGEM_VENCEDOR_PARTIDA
             else if(mensagens[0].equals("4")){
                 JOptionPane.showMessageDialog(null, "O Jogador "+mensagens[1]+" venceu esta partida. Pontuaç�o: "+mensagens[2]);
                 desabilitarBotoes();
-                JButton btnNovaPartida = new JButton("Iniciar Nova Partida");
+                btnNovaPartida.setVisible(true);
                 txtStatus.setVisible(false);
-                painelTopo.add(btnNovaPartida);
-                alterarDesignBotao(btnNovaPartida);
+                painelTopo.add(BorderLayout.CENTER, btnNovaPartida);
+                btnNovaPartida.setHorizontalAlignment(SwingConstants.CENTER);
+                exibirPontuacaoDasEquipes(mensagens[3]);
                 painelTopo.revalidate();
             }
         }
@@ -315,8 +338,7 @@ public class ClienteTCP extends JFrame {
             if (valido) {
                 //tem que girar a peça em alguns casos na hora de desenhar
                 verificarSeAPecaEstaDoLadoCorreto(pecaClicada, direita);
-
-                saida.println(direita + "#" + pecaClicada.getText() + "#" + pecasQueEstaoNasPontas() + "#" + pecasCompradasNaJogada());
+                saida.println(TipoMensagem.ID_MENSAGEM_PECA_JOGADA+"#"+direita + "#" + pecaClicada.getText() + "#" + pecasQueEstaoNasPontas() + "#" + pecasCompradasNaJogada());
                 saida.flush();
 
                 pecaClicada.setVisible(false);
