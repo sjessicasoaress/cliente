@@ -117,6 +117,7 @@ public class ClienteTCP extends JFrame {
 
     private void configurarLayoutTela() {
         Font fonte = new Font("Comic Sans", Font.PLAIN, 18);
+        Font fontePeca = new Font("Comic Sans", Font.PLAIN, 20);
         this.setForeground(Color.WHITE);
         txtStatus = new JTextField("Aguardando todos os participantes se conectarem..");
         txtStatus.setFont(fonte);
@@ -167,7 +168,8 @@ public class ClienteTCP extends JFrame {
             peca.setEnabled(false);
             peca.addActionListener(new EnviarMensagemAoServidor());
             alterarDesignBotao(peca);
-            peca.setPreferredSize(new Dimension(55, 40));
+            peca.setPreferredSize(new Dimension(50, 35));
+            peca.setFont(fontePeca);
             btnsPecas.add(peca);
             painelJogador.add(peca);
         }
@@ -179,7 +181,7 @@ public class ClienteTCP extends JFrame {
         alterarDesignBotao(btnNovaPartida);
         painelTopo.add(btnNovaPartida);
         btnNovaPartida.setVisible(false);
-        exibirPontuacaoDasEquipes("A: 0, B: 0");
+        exibirPontuacaoDasEquipes("Equipe A: 0 pontos, Equipe B: 0 pontos");
         painelTopo.add(txtPontuacaoEquipes);
         painelTopo.add(txtQuantidadePecas);
         p.add(BorderLayout.NORTH, painelTopo);
@@ -202,11 +204,11 @@ public class ClienteTCP extends JFrame {
     }
 
     private void exibirQuantidadePecasDosJogadores(String quantidadePecasJogadores) {
-        txtQuantidadePecas.setText("Qtd de peças: " + quantidadePecasJogadores);
+        txtQuantidadePecas.setText(quantidadePecasJogadores);
         painelTopo.revalidate();
     }
     private void exibirPontuacaoDasEquipes(String pontuacaoEquipes) {
-        txtPontuacaoEquipes.setText("Equipes:  "+pontuacaoEquipes);
+        txtPontuacaoEquipes.setText(pontuacaoEquipes);
         painelTopo.revalidate();
     }
 
@@ -238,7 +240,7 @@ public class ClienteTCP extends JFrame {
                 } else {
                     JButton btnPecaComprada = new JButton(pecasDisponiveisParaCompra.get(0));
                     alterarDesignBotao(btnPecaComprada);
-                    btnPecaComprada.setPreferredSize(new Dimension(55, 40));
+                    btnPecaComprada.setPreferredSize(new Dimension(50, 25));
                     btnPecaComprada.addActionListener(new EnviarMensagemAoServidor());
                     btnsPecas.add(btnPecaComprada);
                     pecasCompradasNaJogada.add(btnPecaComprada.getText());
@@ -295,7 +297,7 @@ public class ClienteTCP extends JFrame {
                 JButton botaoMesa = new JButton(mensagens[2]);
                 botaoMesa.setBackground(Color.black);
                 botaoMesa.setForeground(Color.white);
-                botaoMesa.setPreferredSize(new Dimension(55, 40));
+                botaoMesa.setPreferredSize(new Dimension(50, 35));
                 botaoMesa.setEnabled(false);
                 if (btnsPecasMesa.isEmpty() || "0".equals(mensagens[1])) {
                     btnsPecasMesa.add(0, botaoMesa);
@@ -312,6 +314,7 @@ public class ClienteTCP extends JFrame {
                 for (int i = 0; i < numeroPecasCompradasPeloAdversario; i++) {
                            pecasDisponiveisParaCompra.remove(0);                        
                     }
+                   exibirQuantidadePecasDosJogadores(mensagens[2]);
                 }
             //ID_MENSAGEM_VENCEDOR_PARTIDA
             else if(mensagens[0].equals("4")){
