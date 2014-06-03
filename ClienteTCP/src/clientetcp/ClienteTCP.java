@@ -116,8 +116,7 @@ public class ClienteTCP extends JFrame {
     }
 
     private void configurarLayoutTela() {
-        Font fonte = new Font("Comic Sans", Font.PLAIN, 18);
-        Font fontePeca = new Font("Comic Sans", Font.PLAIN, 20);
+        Font fonte = new Font("Comic Sans", Font.BOLD, 15);
         this.setForeground(Color.WHITE);
         txtStatus = new JTextField("Aguardando todos os participantes se conectarem..");
         txtStatus.setFont(fonte);
@@ -168,8 +167,7 @@ public class ClienteTCP extends JFrame {
             peca.setEnabled(false);
             peca.addActionListener(new EnviarMensagemAoServidor());
             alterarDesignBotao(peca);
-            peca.setPreferredSize(new Dimension(50, 35));
-            peca.setFont(fontePeca);
+            peca.setPreferredSize(new Dimension(55, 40));
             btnsPecas.add(peca);
             painelJogador.add(peca);
         }
@@ -240,7 +238,7 @@ public class ClienteTCP extends JFrame {
                 } else {
                     JButton btnPecaComprada = new JButton(pecasDisponiveisParaCompra.get(0));
                     alterarDesignBotao(btnPecaComprada);
-                    btnPecaComprada.setPreferredSize(new Dimension(50, 25));
+                    btnPecaComprada.setPreferredSize(new Dimension(55, 40));
                     btnPecaComprada.addActionListener(new EnviarMensagemAoServidor());
                     btnsPecas.add(btnPecaComprada);
                     pecasCompradasNaJogada.add(btnPecaComprada.getText());
@@ -277,7 +275,7 @@ public class ClienteTCP extends JFrame {
                 String[] pecasCompra = mensagens[3].split(",");
                 for (int i = 0; i < pecasCompra.length; i++) {
                     pecasDisponiveisParaCompra.add(pecasCompra[i]);
-                }
+                } 
             } 
             //ID_MENSAGEM_INFORMAR_JOGADOR_DA_VEZ
             else if (mensagens[0].equals("1")) {
@@ -297,7 +295,7 @@ public class ClienteTCP extends JFrame {
                 JButton botaoMesa = new JButton(mensagens[2]);
                 botaoMesa.setBackground(Color.black);
                 botaoMesa.setForeground(Color.white);
-                botaoMesa.setPreferredSize(new Dimension(50, 35));
+                botaoMesa.setPreferredSize(new Dimension(55, 40));
                 botaoMesa.setEnabled(false);
                 if (btnsPecasMesa.isEmpty() || "0".equals(mensagens[1])) {
                     btnsPecasMesa.add(0, botaoMesa);
